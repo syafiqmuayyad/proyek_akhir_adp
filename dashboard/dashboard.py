@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv(dashboard/main_data.csv)
+dt = pd.read_csv(dashboard/main_data.csv)
 
 st.title("Bike Sharing Dashboard")
 
