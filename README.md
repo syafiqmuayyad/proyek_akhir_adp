@@ -1,7 +1,7 @@
 # Submission "Belajar Analisis Data dengan Python"
 
 ## Deskripsi
-Proyek ini dibuat untuk menganalisis data yang diambil dari Bike Sharing Dataset, Tujuannya untuk memberikan insight/wawasan dari data yang dianalisis.
+Proyek ini dibuat untuk menganalisis bike sharing dataset.
 
 ## Dataset yang digunakan
 https://drive.google.com/file/d/1RaBmV6Q6FYWU4HWZs80Suqd7KQC34diQ/view
