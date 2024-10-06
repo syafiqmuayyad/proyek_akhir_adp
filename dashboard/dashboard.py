@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 data = pd.read_csv('dashboard/main_data.csv')
 
@@ -9,38 +10,50 @@ st.title("Bike Sharing Dashboard")
 st.sidebar.header("Filter options")
 
 selected_year = st.sidebar.selectbox("Select Year", data['year'].unique())
-selected_month = st.sidebar.selectbox("Select Month", data['month'].unique())
-
+selected_month = st.sidebar.multiselect("Select Month", data['month'].unique(), default=data['month'].unique())
 selected_season = st.sidebar.multiselect("Select Season", data['season'].unique(), default=data['season'].unique())
-
 selected_weather = st.sidebar.multiselect("Select Weather Condition", data['weathersit'].unique(), default=data['weathersit'].unique())
 
 filtered_data = data[(data['year'] == selected_year) & 
-                     (data['month'] == selected_month) & 
+                     (data['month'].isin(selected_month)) & 
                      (data['season'].isin(selected_season)) & 
                      (data['weathersit'].isin(selected_weather))]
 
-st.subheader(f"Showing data for {selected_month} {selected_year}")
-
+st.subheader(f"Showing data for year {selected_year}")
 st.dataframe(filtered_data)
 
-st.subheader("Temperature Overview")
+data['month'] = pd.to_datetime(data['date']).dt.month
+filtered_data['month'] = pd.to_datetime(filtered_data['date']).dt.month
 
+avg_rentals_by_month = filtered_data.groupby('month')['cnt'].mean().reset_index()
+
+st.subheader("Rata-rata Penyewaan Sepeda Berdasarkan Bulan")
 fig, ax = plt.subplots()
-ax.plot(filtered_data['date'], filtered_data['temperature'], label='Temperature', color='orange')
-ax.set_xlabel('Date')
-ax.set_ylabel('Temperature')
-plt.xticks(rotation=45)
+sns.lineplot(x='month', y='cnt', data=avg_rentals_by_month, marker='o', color='b', ax=ax)
+ax.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Bulan')
+ax.set_xlabel('Bulan')
+ax.set_ylabel('Rata-rata Penyewaan')
+ax.set_xticks(range(1, 13))
+ax.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'])
+ax.grid(True)
 st.pyplot(fig)
 
-st.subheader("Working vs Non-Working Days")
-workingday_count = filtered_data['workingday'].value_counts()
+avg_rentals_by_season = filtered_data.groupby('season')['cnt'].mean().reset_index()
 
-st.bar_chart(workingday_count)
+st.subheader("Rata-rata Penyewaan Sepeda Berdasarkan Musim")
+fig, ax = plt.subplots(figsize=(8,5))
+sns.barplot(x='season', y='cnt', data=avg_rentals_by_season, palette='coolwarm', ax=ax)
+ax.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Musim')
+ax.set_xlabel('Musim')
+ax.set_ylabel('Rata-rata Penyewaan')
+st.pyplot(fig)
 
-st.subheader("Weather Condition Breakdown")
-weather_count = filtered_data['weathersit'].value_counts()
+avg_rentals_by_weather = filtered_data.groupby('weathersit')['cnt'].mean().reset_index()
 
-st.bar_chart(weather_count)
-
-st.sidebar.markdown("Data source: Uploaded CSV")
+st.subheader("Rata-rata Penyewaan Sepeda Berdasarkan Kondisi Cuaca")
+fig, ax = plt.subplots(figsize=(8,5))
+sns.barplot(x='weathersit', y='cnt', data=avg_rentals_by_weather, palette='coolwarm', ax=ax)
+ax.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Kondisi Cuaca')
+ax.set_xlabel('Kondisi Cuaca')
+ax.set_ylabel('Rata-rata Penyewaan')
+st.pyplot(fig)
